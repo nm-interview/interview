@@ -1,0 +1,27 @@
+services:
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/var/lib/mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: mydb
+
+  web:
+    image: CI_REGISTRY_IMAGE:CI_COMMIT_REF_NAME
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web:/var/www/html
+      - data:/data/
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+      - MONGO_URI=mongodb://mongo:27017/mydb
+    depends_on:
+      - mongo

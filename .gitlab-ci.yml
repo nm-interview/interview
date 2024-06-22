@@ -1,0 +1,27 @@
+default:
+  tags:
+    - docker
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+test:
+  stage: test
+  script:
+    - docker run $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME npm test
+
+deploy:
+  stage: deploy
+  script:
+    - sed -i "s/CI_REGISTRY_IMAGE/$CI_REGISTRY_IMAGE/g" docker-compose.yml
+    - sed -i "s/CI_COMMIT_REF_NAME/$CI_COMMIT_REF_NAME/g" docker-compose.yml
+    - docker compuse up -d
