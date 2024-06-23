@@ -24,4 +24,4 @@ deploy:
   script:
     - sed -i "s/CI_REGISTRY_IMAGE/$CI_REGISTRY_IMAGE/g" docker-compose.yml
     - sed -i "s/CI_COMMIT_REF_NAME/$CI_COMMIT_REF_NAME/g" docker-compose.yml
-    - docker compuse up -d
+    - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $SSH_KEY root@$SERVER_ADDR_PROD "cd /data/newDeployments && ls && sed 's/{IMAGE_TAG}/$CI_COMMIT_SHORT_SHA/g' docker-compose.yaml.template > docker-compose.yaml && docker-compose up -d && sleep 20 && docker-compose logs --tail 100"
